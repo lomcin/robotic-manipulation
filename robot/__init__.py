@@ -40,6 +40,15 @@ def transform_matrix(ang, axis=0, t=[0,0,0]):
     else:
         raise Exception("Invalid axis. Use axis = [0, 1, 2]")
 
+def update_transform_method(r):
+      v = np.array([0, 0, 0, 1])
+      base_m = transform_matrix(r.qpos[0], axis=2, t=[0, 0, 0])
+      shoulder_m = transform_matrix(r.qpos[1], axis=1, t=[0, 0, 0.045])
+      elbow_m = transform_matrix(r.qpos[2], axis=1, t=[0, 0, 0.5])
+      fake_hand_m = transform_matrix(0, axis=1, t=[0, 0, 0.5])
+      r.transform_ee = base_m @ shoulder_m @ elbow_m @ fake_hand_m
+      r.ee = r.transform_ee @ v.transpose()
+
 if __name__ == "__main__":
     robot = RobotModel(3)
     print(robot.jacobian)

@@ -39,16 +39,7 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
     # Update robot model observation
     arm.observe()
 
-    def update_transform_method(r):
-      v = np.array([0, 0, 0, 1])
-      base_m = robot.transform_matrix(r.qpos[0], axis=2, t=[0, 0, 0])
-      shoulder_m = robot.transform_matrix(r.qpos[1], axis=1, t=[0, 0, 0.045])
-      elbow_m = robot.transform_matrix(r.qpos[2], axis=1, t=[0, 0, 0.5])
-      fake_hand_m = robot.transform_matrix(0, axis=1, t=[0, 0, 0.5])
-      r.transform_ee = base_m @ shoulder_m @ elbow_m @ fake_hand_m
-      r.ee = r.transform_ee @ v.transpose()
-
-    arm.set_update_transform_method(update_transform_method)
+    arm.set_update_transform_method(robot.update_transform_method)
 
     # print(f'arm qpos: {arm.qpos}')
     ball_p = d.geom('ball').xpos
