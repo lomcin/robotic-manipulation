@@ -22,6 +22,9 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
   ball_p = np.zeros(3)
   ball_v = np.zeros(3)
 
+  # Set End Effector Estimator Function
+  arm.set_update_transform_method(robot.update_transform_method)
+
   while viewer.is_running():
     step_start = time.time()
 
@@ -39,12 +42,12 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
     # Update robot model observation
     arm.observe()
 
-    arm.set_update_transform_method(robot.update_transform_method)
-
     # print(f'arm qpos: {arm.qpos}')
     ball_p = d.geom('ball').xpos
     ball_v = d.sensor('ball_vx').data
     # d.actuator('base_p').ctrl = (math.sin(d.time/rotation_period)*math.pi)
+
+    # Update arm End Effector
     arm.update()
 
     print(f'arm ee: {arm.ee} and qpos {arm.qpos}')
