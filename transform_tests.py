@@ -22,4 +22,8 @@ def update_transform_method(r):
 
 
 update_transform_method(arm)
-print(arm.ee)
+print(f'arm.ee: {arm.ee} arm.qpos: {arm.qpos}')
+print('')
+qpos = robot.optim_qpos_from_xpos([0.5, 0, 0], arm.qpos)
+ee, t_ee = robot.ee_from_qpos(qpos)
+print(f'qpos: {qpos} ee: {ee}')

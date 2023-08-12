@@ -53,3 +53,27 @@ def update_transform_method(r):
     ee, t_ee = ee_from_qpos(r.qpos)
     r.transform_ee = t_ee
     r.ee = ee
+
+def cartesian_distance(a, b):
+    dd = a - b
+    return np.sqrt(np.dot(dd,dd))
+
+def optim_qpos_from_xpos(xpos, initial_qpos, steps=10, eps=0.01, trials=10):
+    best_qpos = np.array(initial_qpos)
+    qposlen = len(initial_qpos)
+    ee, t_ee = ee_from_qpos(best_qpos)
+    best_dds = cartesian_distance(ee[:-1], xpos)
+    step = 0
+    rad_scale = 4*math.pi/180.0
+
+    while (step < steps) and best_dds > eps:
+        for _ in range(trials):
+            qpos = best_qpos + np.random.normal(0, rad_scale, qposlen)
+            ee, t_ee = ee_from_qpos(qpos)
+            dds = cartesian_distance(ee[:-1], xpos)
+            if dds < best_dds:
+                best_dds = dds
+                best_qpos = qpos
+        step += 1
+
+    return best_qpos
