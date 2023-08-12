@@ -12,18 +12,41 @@ d = mujoco.MjData(m)
 with mujoco.viewer.launch_passive(m, d) as viewer:
   # Close the viewer automatically after 30 wall-seconds.
   start = time.time()
+
+  # Ball information
   ball_r = 0.03
   ball_tolerance = ball_r*0.01
-  rotation_period = math.pi*2.0/10.0
-  
-
-  joint_names = ["base", "shoulder", "elbow"]
-  arm = robot.RobotModel(d, joint_names)
   ball_p = np.zeros(3)
   ball_v = np.zeros(3)
 
+  ball_destination_p = np.array([0.5, 0.5, 0.1])
+
+  # Setting up the Arm Robot
+  joint_names = ["base", "shoulder", "elbow"]
+  arm = robot.RobotModel(d, joint_names)
+
   # Set End Effector Estimator Function
   arm.set_update_transform_method(robot.update_transform_method)
+
+  # Setting up the task scheduler
+  ts = robot.task_scheduler.RobotTaskScheduler()
+
+  # go_to_ball
+  robot.ball_catcher_tasks.task_go_to_ball.robot = arm
+  ts.add(robot.ball_catcher_tasks.task_go_to_ball)
+
+  # grab_ball
+  robot.ball_catcher_tasks.task_grab_ball.robot = arm
+  ts.add(robot.ball_catcher_tasks.task_grab_ball)
+
+  # move_ball_to_destination
+  robot.ball_catcher_tasks.task_move_ball_to_destination.robot = arm
+  ts.add(robot.ball_catcher_tasks.task_move_ball_to_destination)
+
+  # ungrab_ball
+  robot.ball_catcher_tasks.task_ungrab_ball.robot = arm
+  ts.add(robot.ball_catcher_tasks.task_ungrab_ball)
+
 
   while viewer.is_running():
     step_start = time.time()
@@ -45,16 +68,24 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
     # print(f'arm qpos: {arm.qpos}')
     ball_p = d.geom('ball').xpos
     ball_v = d.sensor('ball_vx').data
+    
     # d.actuator('base_p').ctrl = (math.sin(d.time/rotation_period)*math.pi)
 
     # Update arm End Effector
     arm.update()
 
-    print(f'arm ee: {arm.ee} and qpos {arm.qpos}')
+    # print(f'arm ee: {arm.ee} and qpos {arm.qpos}')
     
-    # Actuate testing
-    # base_p = (math.sin(d.time/rotation_period)*math.pi)
-    # arm.actuate('base_p', base_p)
+    # Actuate using the task scheduler
+    if not ts.empty():
+      if ts.current_task().name == "go_to_ball":
+        ts.current_task().target = ball_p
+      elif ts.current_task().name == "grab_ball":
+        ts.current_task().target = float(d.time)
+      elif ts.current_task().name == "move_ball_to_destination":
+        ts.current_task().target = ball_destination_p
+    ts.spin_once(d.time)
+
 
     with viewer.lock():
       if abs(ball_p[2] - ball_r) < ball_tolerance:

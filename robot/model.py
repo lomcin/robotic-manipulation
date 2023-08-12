@@ -34,3 +34,7 @@ class RobotModel:
     
     def actuate(self, actuator, value):
         self.d.actuator(actuator).ctrl = value
+
+    def actuate_qpos(self, qpos):
+        for i, jname in enumerate(self.joint_names):
+            self.d.actuator(jname + '_p').ctrl = qpos[i]
