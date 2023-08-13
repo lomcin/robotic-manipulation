@@ -22,7 +22,8 @@ class RobotTaskScheduler:
         
     def spin_once(self, time) -> None:
         if not self.empty():
-            self.current_task().begin_time = time
+            if self.current_task().begin_time is None:
+                self.current_task().begin_time = float(time)
             self.current_task().check_completion()
             if self.current_task().is_done():
                 print(f'{self.current_task().name} is done')

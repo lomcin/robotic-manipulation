@@ -19,7 +19,7 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
   ball_p = np.zeros(3)
   ball_v = np.zeros(3)
 
-  ball_destination_p = np.array([0.5, 0.5, 0.1])
+  ball_destination_p = np.array([0.5, -0.5, 0.15])
 
   # Setting up the Arm Robot
   joint_names = ["base", "shoulder", "elbow"]

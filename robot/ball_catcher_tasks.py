@@ -21,7 +21,7 @@ task_go_to_ball.set_actuate_method(actuate_go_to_ball)
 task_grab_ball = RobotTask("grab_ball")
 def check_completion_grab_ball(rt: RobotTask):
     print(f'{rt.target} {rt.begin_time}')
-    rt.done = (rt.target - rt.begin_time) > 2
+    rt.done = (rt.target - rt.begin_time) > 1
 
 def actuate_grab_ball(rt: RobotTask):
     rt.robot.actuate('fake_hand_grab', 300)

@@ -62,11 +62,11 @@
   </worldbody>
 
   <actuator>
-    <position name="base_p" joint="base" ctrlrange="-3.1415 3.1415" kp="120"/>
-    <position name="shoulder_p" joint="shoulder" ctrlrange="-3.1415 3.1415" kp="60"/>
-    <position name="elbow_p" joint="elbow" ctrlrange="-3.1415 3.1415" kp="10"/>
-    <velocity name="shoulder_va" joint="shoulder" ctrlrange="-3.1415 3.1415" kv="0.9"/>
-    <velocity name="elbow_va" joint="elbow" ctrlrange="-3.1415 3.1415" kv="0.9"/>
+    <position name="base_p" joint="base" kp="120"/>
+    <position name="shoulder_p" joint="shoulder" kp="60"/>
+    <position name="elbow_p" joint="elbow" kp="10"/>
+    <velocity name="shoulder_va" joint="shoulder" kv="0.9"/>
+    <velocity name="elbow_va" joint="elbow" kv="0.9"/>
     <adhesion name="fake_hand_grab" body="fake_hand" ctrlrange="0 30"/>
   </actuator>
 
