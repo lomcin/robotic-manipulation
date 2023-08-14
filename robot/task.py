@@ -10,6 +10,7 @@ class RobotTask:
         self.robot: RobotModel = None
         self.target = None
         self.begin_time = None
+        self.started = False
 
     def set_check_completion_method(self, func):
         self.check_completion_method = func

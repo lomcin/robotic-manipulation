@@ -55,27 +55,18 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
     # a policy and applies a control signal before stepping the physics.
     mujoco.mj_step(m, d)
 
-    # Example modification of a viewer option: toggle contact points every two seconds.
-    with viewer.lock():
-      viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = int(d.time % 2)
-
     # Pick up changes to the physics state, apply perturbations, update options from GUI.
     viewer.sync()
 
     # Update robot model observation
     arm.observe()
 
-    # print(f'arm qpos: {arm.qpos}')
     ball_p = d.geom('ball').xpos
     ball_v = d.sensor('ball_vx').data
     
-    # d.actuator('base_p').ctrl = (math.sin(d.time/rotation_period)*math.pi)
-
     # Update arm End Effector
     arm.update()
 
-    # print(f'arm ee: {arm.ee} and qpos {arm.qpos}')
-    
     # Actuate using the task scheduler
     if not ts.empty():
       if ts.current_task().name == "go_to_ball":
@@ -85,16 +76,6 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
       elif ts.current_task().name == "move_ball_to_destination":
         ts.current_task().target = ball_destination_p
     ts.spin_once(d.time)
-
-
-    with viewer.lock():
-      if abs(ball_p[2] - ball_r) < ball_tolerance:
-        # ball_p[2] = 1
-        # ball_v[2] = 0
-        # print('ballafter: ' + str(d.geom('ball').xpos))
-        # d.geom('ball').xpos = ball_p
-        # d.efc_vel = ball_v
-        viewer.sync()
 
     # Rudimentary time keeping, will drift relative to wall clock.
     time_until_next_step = m.opt.timestep - (time.time() - step_start)

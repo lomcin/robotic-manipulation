@@ -22,12 +22,14 @@ class RobotTaskScheduler:
         
     def spin_once(self, time) -> None:
         if not self.empty():
-            if self.current_task().begin_time is None:
+            if not self.current_task().started:
+                self.current_task().started = True
                 self.current_task().begin_time = float(time)
+                print(f'current task: {self.current_task().name}')
+
             self.current_task().check_completion()
             if self.current_task().is_done():
                 print(f'{self.current_task().name} is done')
                 self.next()
             else:
-                print(f'current task: {self.current_task().name}')
                 self.current_task().actuate()
