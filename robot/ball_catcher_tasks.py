@@ -2,8 +2,6 @@ from .math_routines import *
 from .model import *
 from .task_scheduler import *
 
-
-
 # go_to_ball
 task_go_to_ball = RobotTask("go_to_ball")
 def check_completion_go_to_ball(rt: RobotTask):

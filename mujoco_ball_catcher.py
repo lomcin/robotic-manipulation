@@ -10,7 +10,6 @@ m = mujoco.MjModel.from_xml_path('world/arm_ball_catcher.xml')
 d = mujoco.MjData(m)
 
 with mujoco.viewer.launch_passive(m, d) as viewer:
-  # Close the viewer automatically after 30 wall-seconds.
   start = time.time()
 
   # Ball information
