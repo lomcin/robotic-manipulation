@@ -7,5 +7,5 @@ else
     virtualenv venv
     source venv/bin/activate
     python3 -m pip install --upgrade pip
-    python3 -m pip install pygame mujoco scipy
+    python3 -m pip install pygame mujoco scipy roslibpy
 fi
