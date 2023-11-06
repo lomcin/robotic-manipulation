@@ -23,14 +23,17 @@ turn_threshold = 0.1
 cmd_turn_norm = 1.0-turn_threshold
 light_active = True
 
+joystick_acc_axis = 5
+joystick_break_axis = 4
+
 def update_state_from_joystick(state):
   global light_active
   for event in pygame.event.get():
     if event.type == pygame.JOYAXISMOTION:
-      cmd_accelerate = joysticks[0].get_axis(5) > acc_threshold
-      x_accelerate = (joysticks[0].get_axis(5) - acc_threshold)/(cmd_acc_norm)
-      cmd_break = joysticks[0].get_axis(4) > acc_threshold
-      x_break = (joysticks[0].get_axis(5) - acc_threshold)/cmd_acc_norm
+      cmd_accelerate = joysticks[0].get_axis(joystick_acc_axis) > acc_threshold
+      x_accelerate = (joysticks[0].get_axis(joystick_acc_axis) - acc_threshold)/(cmd_acc_norm)
+      cmd_break = joysticks[0].get_axis(joystick_break_axis) > acc_threshold
+      x_break = (joysticks[0].get_axis(joystick_break_axis) - acc_threshold)/cmd_acc_norm
 
       cmd_turn = np.abs(joysticks[0].get_axis(0)) > acc_threshold
       sign_y = np.sign(joysticks[0].get_axis(0))
