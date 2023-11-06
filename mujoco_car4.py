@@ -52,55 +52,26 @@ def update_state_from_joystick(state):
 
 
 with mujoco.viewer.launch_passive(m, d) as viewer:
-  # viewer.opt.flags[mujoco.mjtVisFlag.mjOPT_FULLSCREEN] = True
-  print(f'mujoco.mjtVisFlag:{dir(mujoco.mjtVisFlag)}')
-# with a as aa:
-# while True:
-  # Close the viewer automatically after 30 wall-seconds.
   start = time.time()
-  ball_r = 0.03
-  ball_tolerance = ball_r*0.01
-  rotation_period = math.pi*2.0/10.0
   print(f'model:{dir(m)}')
   print(f'data:{dir(d)}')
-  # print(f'data.jnt("ball"):{d.jnt("ball")}')
-  # print(f'data.joint("ball"):{d.joint("ball")}')
   for i in range(0,m.njnt):
     print(f'jnt:{m.jnt(i)}')
 
   while viewer.is_running():
-  # while True:
     step_start = time.time()
 
-    # mj_step can be replaced with code that also evaluates
-    # a policy and applies a control signal before stepping the physics.
     mujoco.mj_step(m, d)
 
-    # Example modification of a viewer option: toggle contact points every two seconds.
-    # with viewer.lock():
-    #   viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = int(d.time % 2)
-
-    # Pick up changes to the physics state, apply perturbations, update options from GUI.
-    # viewer.sync()
-
-    # print('ball: ' + str(d.geom('ball').xpos))
-    # print('ball_v: ' + str(d.sensor('ball_v').data))
-    # print('shoulder: ' + str(d.joint('shoulder').qpos[0]))
-    # print('elbow: ' + str(d.joint('elbow').qpos[0]))
     tam = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_CTRL)
     state = np.zeros((tam,1),dtype=np.float64)
-    # ball_p = d.geom('ball').xpos
-    # ball_p[0] = d.time
-    # d.geom('ball').xpos = ball_p
-    # m.body_pos[0][0] = d.time*0.1
-    mujoco.mj_getState(m,d,state,mujoco.mjtState.mjSTATE_CTRL)
-    # print(f"state: {state}")
-    # state[0] = d.time*0.1
 
+    mujoco.mj_getState(m,d,state,mujoco.mjtState.mjSTATE_CTRL)
+    
     update_state_from_joystick(state)
+    
     mujoco.mj_setState(m,d,state,mujoco.mjtState.mjSTATE_CTRL)
-    # print(f"d.geom('ball').xpos:{d.geom('ball').xpos}")
-    # d.actuator('base_p').ctrl = (math.sin(d.time/rotation_period)*math.pi)
+
     with viewer.lock():
       viewer.sync()
 
