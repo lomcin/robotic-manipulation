@@ -1,5 +1,5 @@
 <mujoco model="go1">
-  <body name="go1" pos="0.1881 -0.04675 0">
+  <body name="go1" pos="0 0 0.4">
     <freejoint/>
     <geom size="0.1881 0.04675 0.057" type="box"/>
     <body name="RF_hip" pos="0.1881 -0.04675 0">
