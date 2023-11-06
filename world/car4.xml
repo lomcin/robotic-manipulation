@@ -37,6 +37,7 @@
     <geom type="plane" size="3 3 .01" material="grid"/>
     <body name="car" pos="0 0 .03">
       <freejoint/>
+      <camera name="car camera" pos="-0.6 0 0.4" euler="0 -70 -90"/>
       <light name="top light" pos="0 0 2" mode="trackcom" diffuse=".4 .4 .4"/>
       <geom name="chasis" type="mesh" mesh="chasis" mass="30"/>
       <geom name="front wheel" pos=".08 0 -.015" type="sphere" size=".015" condim="1" priority="1"/>
