@@ -20,10 +20,10 @@
   <default>
     <joint damping=".03" actuatorforcerange="-0.5 5"/>
     <default class="wheel">
-      <geom type="cylinder" size=".03 .01" rgba=".5 .5 1 1"  mass="3" condim="6" friction=".8" solimp=".7 .8 .003" solref=".015 1" />
+      <geom type="cylinder" size=".03 .01" rgba=".5 .5 1 1"  mass="3" condim="6" friction=".8" solimp=".7 .0 .003" solref=".015 1" />
     </default>
     <default class="wheel_link">
-      <geom type="cylinder" size=".001 .001" rgba=".5 .5 1 1"  mass="0.1" condim="6" friction=".8" solimp=".7 .8 .003" solref=".015 1" />
+      <geom type="cylinder" size=".001 .001" rgba=".5 .5 1 1"  mass="0.1" condim="6" friction=".8" solimp=".7 .0 .003" solref=".015 1" />
     </default>
     <default class="wheel_link_joint">
       <joint type="hinge" range="-30 30"/>
@@ -89,7 +89,8 @@
 
   <actuator>
     <motor name="forward" tendon="forward" ctrlrange="-10 10"/>
-    <position name="turn" tendon="turn" ctrlrange="-30 30" kp="120"/>
+    <position name="turnp" tendon="turn" ctrlrange="-30 30" kp="120"/>
+    <velocity name="turnv" tendon="turn" ctrlrange="-1 1" kv="0.9"/>
   </actuator>
 
   <sensor>

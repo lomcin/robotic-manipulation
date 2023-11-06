@@ -21,9 +21,10 @@ acc_threshold = 0.1
 cmd_acc_norm = 1.0-acc_threshold
 turn_threshold = 0.1
 cmd_turn_norm = 1.0-turn_threshold
-a = 1
+light_active = True
 
 def update_state_from_joystick(state):
+  global light_active
   for event in pygame.event.get():
     if event.type == pygame.JOYAXISMOTION:
       cmd_accelerate = joysticks[0].get_axis(5) > acc_threshold
@@ -49,6 +50,10 @@ def update_state_from_joystick(state):
         state[1] = -sign_y*max_accelerate*turn_val*turn_val
       else:
         state[1] = 0.0
+    
+    if event.type == pygame.JOYBUTTONDOWN:
+      if joysticks[0].get_button(0):
+        light_active = not light_active
 
 
 with mujoco.viewer.launch_passive(m, d) as viewer:
@@ -69,7 +74,8 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
     mujoco.mj_getState(m,d,state,mujoco.mjtState.mjSTATE_CTRL)
     
     update_state_from_joystick(state)
-    
+    m.light('front light').active = light_active
+
     mujoco.mj_setState(m,d,state,mujoco.mjtState.mjSTATE_CTRL)
 
     with viewer.lock():
