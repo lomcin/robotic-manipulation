@@ -65,14 +65,13 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
   print(f'data:{dir(d)}')
   for i in range(0,m.njnt):
     print(f'jnt:{m.jnt(i)}')
+  tam = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_CTRL)
+  state = np.zeros((tam,1),dtype=np.float64)
 
   while viewer.is_running():
     step_start = time.time()
 
     mujoco.mj_step(m, d)
-
-    tam = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_CTRL)
-    state = np.zeros((tam,1),dtype=np.float64)
 
     mujoco.mj_getState(m,d,state,mujoco.mjtState.mjSTATE_CTRL)
     
