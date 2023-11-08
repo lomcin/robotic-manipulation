@@ -1,0 +1,107 @@
+<mujoco model="go1">
+  <compiler meshdir="../robot/model/go1"/>
+  <asset>
+    <!-- Colored Materials -->
+    <material name="black" rgba="0.0 0.0 0.0 1.0" reflectance=".2"/>
+    <material name="blue" rgba="0.0 0.0 0.8 1.0" reflectance=".2"/>
+    <material name="green" rgba="0.0 0.8 0.0 1.0" reflectance=".2"/>
+    <material name="grey" rgba="0.2 0.2 0.2 1.0" reflectance=".2"/>
+    <material name="silver" rgba="0.9137254901960784 0.9137254901960784 0.8470588235294118 1.0" reflectance=".2"/>
+    <material name="orange" rgba="1.0 0.4235294117647059 0.0392156862745098 1.0" reflectance=".2"/>
+    <material name="brown" rgba="0.8705882352941177 0.8117647058823529 0.7647058823529411 1.0" reflectance=".2"/>
+    <material name="red" rgba="0.8 0.0 0.0 1.0" reflectance=".2"/>
+    <material name="white" rgba="1.0 1.0 1.0 1.0" reflectance=".2"/>
+
+    <!-- Pre-load all Go1 meshes -->
+    <mesh name="calf" file="calf.stl" />
+    <mesh name="depthCamera" file="depthCamera.stl" />
+    <mesh name="hip" file="hip.stl" />
+    <mesh name="thigh" file="thigh.stl" />
+    <mesh name="thigh_mirror" file="thigh_mirror.stl" />
+    <mesh name="trunk" file="trunk.stl" />
+    <mesh name="ultraSound" file="ultraSound.stl" />
+  </asset>
+  <worldbody>
+    <body name="go1" pos="0 0 0.5">
+      <freejoint name="base"/>
+      <geom group="0" size="0.1881 0.04675 0.057" type="box"/>
+      <geom group="1" type="mesh" mesh="trunk" material="white"/>
+      <body name="RF_hip" pos="0.1881 -0.04675 0">
+        <inertial pos="-0.005657 0.008752 -0.000102" quat="0.50601 0.51272 0.497198 0.483596" mass="0.591" diaginertia="0.000619523 0.000400592 0.000333571"/>
+        <joint name="RF_HAA" type="hinge" pos="0 0 0" axis="1 0 0" range="-0.863 0.863" damping="0.01" frictionloss="0.2"/>
+        <geom group="0" size="0.046 0.02" quat="0.707107 0.707107 0 0" type="cylinder" rgba="1 0.423529 0.0392157 1"/>
+        <geom group="1" type="mesh" mesh="hip" material="grey"/>
+        <body name="RF_thigh" pos="0 -0.08 0">
+          <inertial pos="-0.003342 0.018054 -0.033451" quat="0.638086 -0.0246609 0.075943 0.765814" mass="0.92" diaginertia="0.0045757 0.00444045 0.000641595"/>
+          <joint name="RF_HFE" type="hinge" pos="0 0 0" axis="0 1 0" range="-0.686 4.501" damping="0.01" frictionloss="0.2"/>
+          <geom group="0" size="0.1065 0.01225 0.017" pos="0 0 -0.1065" quat="0.707107 0 0.707107 0" type="box" rgba="1 0.423529 0.0392157 1"/>
+          <geom group="1" type="mesh" mesh="thigh_mirror" material="grey"/>
+          <body name="RF_calf" pos="0 0 -0.213">
+            <inertial pos="0.00429862 0.000976676 -0.146197" quat="0.691246 0.00357467 0.00511118 0.722592" mass="0.195862" diaginertia="0.00149767 0.00148468 3.58427e-05"/>
+            <joint name="RF_KFE" type="hinge" pos="0 0 0" axis="0 1 0" range="-2.818 -0.888" damping="0.01" frictionloss="0.2"/>
+            <geom group="0" size="0.1065 0.008 0.008" pos="0 0 -0.1065" quat="0.707107 0 0.707107 0" type="box" rgba="1 0.423529 0.0392157 1"/>
+            <geom group="0" size="0.02" pos="0 0 -0.213" rgba="1 0.423529 0.0392157 1"/>
+            <geom group="1" type="mesh" mesh="calf" material="white"/>
+          </body>
+        </body>
+      </body>
+      <body name="LF_hip" pos="0.1881 0.04675 0">
+        <inertial pos="-0.005657 -0.008752 -0.000102" quat="0.483596 0.497198 0.51272 0.50601" mass="0.591" diaginertia="0.000619523 0.000400592 0.000333571"/>
+        <joint name="LF_HAA" type="hinge" pos="0 0 0" axis="1 0 0" range="-0.863 0.863" damping="0.01" frictionloss="0.2"/>
+        <geom group="0" size="0.046 0.02" quat="0.707107 0.707107 0 0" type="cylinder" rgba="1 0.423529 0.0392157 1"/>
+        <geom group="1" type="mesh" mesh="hip" material="grey"/>
+        <body name="LF_thigh" pos="0 0.08 0">
+          <inertial pos="-0.003342 -0.018054 -0.033451" quat="0.765814 0.075943 -0.0246609 0.638086" mass="0.92" diaginertia="0.0045757 0.00444045 0.000641595"/>
+          <joint name="LF_HFE" type="hinge" pos="0 0 0" axis="0 1 0" range="-0.686 4.501" damping="0.01" frictionloss="0.2"/>
+          <geom group="0" size="0.1065 0.01225 0.017" pos="0 0 -0.1065" quat="0.707107 0 0.707107 0" type="box" rgba="1 0.423529 0.0392157 1"/>
+          <geom group="1" type="mesh" mesh="thigh" material="grey"/>
+          <body name="LF_calf" pos="0 0 -0.213">
+            <inertial pos="0.00429862 0.000976676 -0.146197" quat="0.691246 0.00357467 0.00511118 0.722592" mass="0.195862" diaginertia="0.00149767 0.00148468 3.58427e-05"/>
+            <joint name="LF_KFE" type="hinge" pos="0 0 0" axis="0 1 0" range="-2.818 -0.888" damping="0.01" frictionloss="0.2"/>
+            <geom group="0" size="0.1065 0.008 0.008" pos="0 0 -0.1065" quat="0.707107 0 0.707107 0" type="box" rgba="1 0.423529 0.0392157 1"/>
+            <geom group="0" size="0.02" pos="0 0 -0.213" rgba="1 0.423529 0.0392157 1"/>
+            <geom group="1" type="mesh" mesh="calf" material="white"/>
+          </body>
+        </body>
+      </body>
+      <body name="RH_hip" pos="-0.1881 -0.04675 0">
+        <inertial pos="0.005657 0.008752 -0.000102" quat="0.497198 0.483596 0.50601 0.51272" mass="0.591" diaginertia="0.000619523 0.000400592 0.000333571"/>
+        <joint name="RH_HAA" type="hinge" pos="0 0 0" axis="1 0 0" range="-0.863 0.863" damping="0.01" frictionloss="0.2"/>
+        <geom group="1" type="mesh" mesh="hip" material="grey"/>
+        <geom group="0" size="0.046 0.02" quat="0.707107 0.707107 0 0" type="cylinder" rgba="1 0.423529 0.0392157 1"/>
+        <body name="RH_thigh" pos="0 -0.08 0">
+          <inertial pos="-0.003342 0.018054 -0.033451" quat="0.638086 -0.0246609 0.075943 0.765814" mass="0.92" diaginertia="0.0045757 0.00444045 0.000641595"/>
+          <joint name="RH_HFE" type="hinge" pos="0 0 0" axis="0 1 0" range="-0.686 4.501" damping="0.01" frictionloss="0.2"/>
+          <geom group="0" size="0.1065 0.01225 0.017" pos="0 0 -0.1065" quat="0.707107 0 0.707107 0" type="box" rgba="1 0.423529 0.0392157 1"/>
+          <geom group="1" type="mesh" mesh="thigh_mirror" material="grey"/>
+          <body name="RH_calf" pos="0 0 -0.213">
+            <inertial pos="0.00429862 0.000976676 -0.146197" quat="0.691246 0.00357467 0.00511118 0.722592" mass="0.195862" diaginertia="0.00149767 0.00148468 3.58427e-05"/>
+            <joint name="RH_KFE" type="hinge" pos="0 0 0" axis="0 1 0" range="-2.818 -0.888" damping="0.01" frictionloss="0.2"/>
+            <geom group="0" size="0.1065 0.008 0.008" pos="0 0 -0.1065" quat="0.707107 0 0.707107 0" type="box" rgba="1 0.423529 0.0392157 1"/>
+            <geom group="0" size="0.02" pos="0 0 -0.213" rgba="1 0.423529 0.0392157 1"/>
+            <geom group="1" type="mesh" mesh="calf" material="white"/>
+          </body>
+        </body>
+      </body>
+      <body name="LH_hip" pos="-0.1881 0.04675 0">
+        <inertial pos="0.005657 -0.008752 -0.000102" quat="0.51272 0.50601 0.483596 0.497198" mass="0.591" diaginertia="0.000619523 0.000400592 0.000333571"/>
+        <joint name="LH_HAA" type="hinge" pos="0 0 0" axis="1 0 0" range="-0.863 0.863" damping="0.01" frictionloss="0.2"/>
+        <geom group="0" size="0.046 0.02" quat="0.707107 0.707107 0 0" type="cylinder" rgba="1 0.423529 0.0392157 1"/>
+        <geom group="1" type="mesh" mesh="hip" material="grey"/>
+        <body name="LH_thigh" pos="0 0.08 0">
+          <inertial pos="-0.003342 -0.018054 -0.033451" quat="0.765814 0.075943 -0.0246609 0.638086" mass="0.92" diaginertia="0.0045757 0.00444045 0.000641595"/>
+          <joint name="LH_HFE" type="hinge" pos="0 0 0" axis="0 1 0" range="-0.686 4.501" damping="0.01" frictionloss="0.2"/>
+          <geom group="0" size="0.1065 0.01225 0.017" pos="0 0 -0.1065" quat="0.707107 0 0.707107 0" type="box" rgba="1 0.423529 0.0392157 1"/>
+          <geom group="1" type="mesh" mesh="thigh" material="grey"/>
+          <body name="LH_calf" pos="0 0 -0.213">
+            <inertial pos="0.00429862 0.000976676 -0.146197" quat="0.691246 0.00357467 0.00511118 0.722592" mass="0.195862" diaginertia="0.00149767 0.00148468 3.58427e-05"/>
+            <joint name="LH_KFE" type="hinge" pos="0 0 0" axis="0 1 0" range="-2.818 -0.888" damping="0.01" frictionloss="0.2"/>
+            <geom group="0" size="0.1065 0.008 0.008" pos="0 0 -0.1065" quat="0.707107 0 0.707107 0" type="box" rgba="1 0.423529 0.0392157 1"/>
+            <geom group="0" size="0.02" pos="0 0 -0.213" rgba="1 0.423529 0.0392157 1"/>
+            <geom group="1" type="mesh" mesh="calf" material="white"/>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

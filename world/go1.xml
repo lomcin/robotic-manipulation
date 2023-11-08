@@ -1,15 +1,17 @@
 <mujoco model="go1 scene">
-  <compiler angle="radian" autolimits="true"/>
-  <option timestep="0.010" iterations="25" integrator="RK4" solver="Newton" tolerance="1e-10"/>
+  <compiler angle="radian" autolimits="true" meshdir="../robot/model/go1"/>
+  <option timestep="0.010" iterations="5" integrator="RK4" solver="Newton" tolerance="1e-10"/>
   <statistic meansize="0.139945" extent="0.64803" center="0 0 -0.121985"/>
+  <include file="../robot/model/go1/go1.xml"/>
 
   <asset>
+    <!-- Floor grid -->
     <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/>
     <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/>
   </asset>
 
   <worldbody>
     <geom type="plane" size="3 3 .01" material="grid"/>
-    <include file="../robot/model/go1.xml"/>
+    <light name="top light" pos="0 0 2" mode="trackcom" diffuse=".4 .4 .4"/>
   </worldbody>
 </mujoco>
