@@ -65,6 +65,76 @@ def update_state_from_joystick(state):
       if joysticks[0].get_button(0):
         light_active = not light_active
 
+def create_the_time(d):
+  the_time = {'secs': int(np.floor(d.time)), 'nsecs': int(1000000000*(d.time-np.floor(d.time)))}
+  return the_time
+
+def create_clock_message(the_time):
+  return {'clock': the_time}
+
+def create_odom_message(the_time, d, body_name):
+  global sequential_id
+
+  xpos = d.body(body_name).xpos
+  xquat = d.body(body_name).xquat
+
+  the_header = {'seq': sequential_id, 'stamp': the_time, 'frame_id': 'world'}
+  the_position = {'x': xpos[0], 'y': xpos[1], 'z': xpos[2]}
+  the_orientation = {'x': xquat[1], 'y': xquat[2], 'z': xquat[3], 'w':xquat[0]}
+
+  the_pose = {'position': the_position, 'orientation': the_orientation}
+  the_pose_with_covariance = {'pose': the_pose, 'covariance': list([0.0 for i in range(36)])}
+
+  the_twist = {'linear':{'x': 0.0, 'y': 0.0, 'z': 0.0}, 'angular':{'x': 0.0, 'y': 0.0, 'z': 0.0}}
+  the_twist_with_covariance = {'twist': the_twist, 'covariance': list([0.0 for i in range(36)])}
+
+  odom_message = {'header': the_header, 'child_frame_id': 'base_link', 'pose': the_pose_with_covariance, 'twist': the_twist_with_covariance}
+  return odom_message
+
+def create_tf_world_message(the_time):
+  global sequential_id
+
+  xpos = [0.0, 0.0, 0.0]
+  xquat = [1.0, 0.0, 0.0, 0.0]
+
+  the_header = {'seq': sequential_id, 'stamp': the_time, 'frame_id': 'world'}
+  the_translation = {'x': xpos[0], 'y': xpos[1], 'z': xpos[2]}
+  the_rotation = {'x': xquat[1], 'y': xquat[2], 'z': xquat[3], 'w':xquat[0]}
+
+  the_transform = {'translation': the_translation, 'rotation': the_rotation}
+
+  tf_message = {'header': the_header, 'child_frame_id': '', 'transform': the_transform}
+  return tf_message
+
+def create_tf_message(the_time, d, body_name):
+  global sequential_id
+
+  xpos = d.body(body_name).xpos
+  xquat = d.body(body_name).xquat
+
+  the_header = {'seq': sequential_id, 'stamp': the_time, 'frame_id': 'world'}
+  the_translation = {'x': xpos[0], 'y': xpos[1], 'z': xpos[2]}
+  the_rotation = {'x': xquat[1], 'y': xquat[2], 'z': xquat[3], 'w':xquat[0]}
+
+  the_transform = {'translation': the_translation, 'rotation': the_rotation}
+
+  tf_message = {'header': the_header, 'child_frame_id': 'base_link', 'transform': the_transform}
+  return tf_message
+
+def create_tf2_message(the_time, d, bodies_names):
+  global sequential_id
+
+  # tf_world_message = create_tf_world_message(the_time)
+
+  transforms = list([])
+
+  for body_name in bodies_names:
+    transforms.append(create_tf_message(the_time, d, body_name))
+
+  tf_message = {'transforms': transforms}
+
+  return tf_message
+
 
 with mujoco.viewer.launch_passive(m, d) as viewer:
   start = time.time()
@@ -72,43 +142,48 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
   # print(f'data:{dir(d)}')
   # for i in range(0,m.njnt):
     # print(f'jnt:{m.jnt(i)}')
-  tam = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_CTRL)
-  state = np.zeros((tam,1),dtype=np.float64)
 
-  clock = roslibpy.Topic(ros, '/clock', 'rosgraph_msgs/Clock')
-  odom = roslibpy.Topic(ros, '/odom', 'nav_msgs/Odometry')
+  tam_qpos = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_QPOS)
+  state_qpos = np.zeros((tam_qpos,1),dtype=np.float64)
+
+  tam_ctrl = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_CTRL)
+  state_ctrl = np.zeros((tam_ctrl,1),dtype=np.float64)
+
+  topic_clock = roslibpy.Topic(ros, '/clock', 'rosgraph_msgs/Clock')
+  topic_odom = roslibpy.Topic(ros, '/odom', 'nav_msgs/Odometry')
+  topic_tf = roslibpy.Topic(ros, '/tf', 'tf2_msgs/TFMessage')
+
+  # Reset clock with negative value
+  # clock_message = {'clock':{'secs':-1, 'nsecs':0}}
+  # topic_clock.publish(roslibpy.Message(clock_message))
+  # tf_world_message = create_tf_world_message({'secs':-1, 'nsecs':0})
+  # topic_tf.publish(roslibpy.Message(tf_world_message))
 
   while viewer.is_running() and ros.is_connected:
     step_start = time.time()
 
     mujoco.mj_step(m, d)
 
-    mujoco.mj_getState(m,d,state,mujoco.mjtState.mjSTATE_CTRL)
+    mujoco.mj_getState(m,d,state_qpos,mujoco.mjtState.mjSTATE_QPOS)
+    mujoco.mj_getState(m,d,state_ctrl,mujoco.mjtState.mjSTATE_CTRL)
 
-    xpos = d.body("car").xpos
-    xquat = d.body("car").xquat
-    # print(f"xpos:{xpos}")
-    the_time = {'secs': int(np.floor(d.time)), 'nsecs': int(1000000000*(d.time-np.floor(d.time)))}
-    the_header = {'seq': sequential_id, 'stamp': the_time, 'frame_id': 'odom'}
-    sequential_id += 1
-    the_position = {'x': xpos[0], 'y': xpos[1], 'z': xpos[2]}
-    the_orientation = {'x': xquat[1], 'y': xquat[2], 'z': xquat[3], 'w':xquat[0]}
+    the_time = create_the_time(d)
 
-    the_pose = {'position': the_position, 'orientation': the_orientation}
-    the_pose_with_covariance = {'pose': the_pose, 'covariance': list([0.0 for i in range(36)])}
+    clock_message = create_clock_message(the_time)
+    topic_clock.publish(roslibpy.Message(clock_message))
 
-    the_twist = {'linear':{'x': 0.0, 'y': 0.0, 'z': 0.0}, 'angular':{'x': 0.0, 'y': 0.0, 'z': 0.0}}
-    the_twist_with_covariance = {'twist': the_twist, 'covariance': list([0.0 for i in range(36)])}
+    odom_message = create_odom_message(the_time, d, "car")
+    topic_odom.publish(roslibpy.Message(odom_message))
 
-    odom_message = {'header': the_header, 'child_frame_id': '', 'pose': the_pose_with_covariance, 'twist': the_twist_with_covariance}
+    bodies_names = ['car']
 
-    clock.publish(roslibpy.Message({'clock': the_time}))
-    odom.publish(roslibpy.Message(odom_message))
+    tf2_message = create_tf2_message(the_time, d, bodies_names)
+    topic_tf.publish(roslibpy.Message(tf2_message))
     
-    update_state_from_joystick(state)
+    update_state_from_joystick(state_ctrl)
     m.light('front light').active = light_active
 
-    mujoco.mj_setState(m,d,state,mujoco.mjtState.mjSTATE_CTRL)
+    mujoco.mj_setState(m,d,state_ctrl,mujoco.mjtState.mjSTATE_CTRL)
 
     with viewer.lock():
       viewer.sync()
@@ -117,6 +192,9 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
     time_until_next_step = m.opt.timestep - (time.time() - step_start)
     if time_until_next_step > 0:
       time.sleep(time_until_next_step)
+    
+    sequential_id += 1
+
   
   if ros.is_connected: print("ROS is not connected.")
   else: ros.terminate()
