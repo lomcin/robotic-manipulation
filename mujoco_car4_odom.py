@@ -135,6 +135,45 @@ def create_tf2_message(the_time, d, bodies_names):
 
   return tf_message
 
+def create_joint_states_message(the_time, m, d, body_name):
+  global sequential_id
+
+  tam_qpos = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_QPOS)
+  state_qpos = np.zeros((tam_qpos,1),dtype=np.float64)
+  tam_qvel = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_QVEL)
+  state_qvel = np.zeros((tam_qvel,1),dtype=np.float64)
+  tam_qfrc = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_QFRC_APPLIED)
+  state_qfrc = np.zeros((tam_qfrc,1),dtype=np.float64)
+
+  mujoco.mj_getState(m,d,state_qpos,mujoco.mjtState.mjSTATE_QPOS)
+  mujoco.mj_getState(m,d,state_qvel,mujoco.mjtState.mjSTATE_QVEL)
+  mujoco.mj_getState(m,d,state_qfrc,mujoco.mjtState.mjSTATE_QFRC_APPLIED)
+
+  names = list()
+  qids = list()
+  qdofids = list()
+
+  # print(f'm:{dir(m)}')
+
+  
+  for i in range(0,m.njnt):
+    jnt = m.joint(i)
+    # print(f'jnt:{jnt}')
+    if (jnt.type[0] == 3): # hinge joint
+      names.append(jnt.name)
+      qids.append(jnt.qposadr[0])
+      qdofids.append(jnt.dofadr[0])
+
+  # print(f'qpos: {tam_qpos}, qvel: {tam_qvel}, qfrc: {tam_qfrc} names: {names}, qids: {qids}, qdofids: {qdofids}')
+  position = state_qpos[qids].flatten().tolist()
+  velocity = state_qvel[qdofids].flatten().tolist()
+  effort = state_qfrc[qdofids].flatten().tolist()
+
+  # print(f'position:{position}, velocity:{velocity}, effort:{effort}, ')
+  
+  the_header = {'seq': sequential_id, 'stamp': the_time, 'frame_id': 'base_link'}
+  return {'header': the_header, 'name': names, 'position': position, 'velocity': velocity, 'effort': effort}
+
 
 with mujoco.viewer.launch_passive(m, d) as viewer:
   start = time.time()
@@ -143,8 +182,7 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
   # for i in range(0,m.njnt):
     # print(f'jnt:{m.jnt(i)}')
 
-  tam_qpos = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_QPOS)
-  state_qpos = np.zeros((tam_qpos,1),dtype=np.float64)
+  
 
   tam_ctrl = mujoco.mj_stateSize(m,mujoco.mjtState.mjSTATE_CTRL)
   state_ctrl = np.zeros((tam_ctrl,1),dtype=np.float64)
@@ -152,6 +190,7 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
   topic_clock = roslibpy.Topic(ros, '/clock', 'rosgraph_msgs/Clock')
   topic_odom = roslibpy.Topic(ros, '/odom', 'nav_msgs/Odometry')
   topic_tf = roslibpy.Topic(ros, '/tf', 'tf2_msgs/TFMessage')
+  topic_joint_states = roslibpy.Topic(ros, '/joint_states', 'sensor_msgs/JointState')
 
   # Reset clock with negative value
   # clock_message = {'clock':{'secs':-1, 'nsecs':0}}
@@ -164,19 +203,25 @@ with mujoco.viewer.launch_passive(m, d) as viewer:
 
     mujoco.mj_step(m, d)
 
-    mujoco.mj_getState(m,d,state_qpos,mujoco.mjtState.mjSTATE_QPOS)
     mujoco.mj_getState(m,d,state_ctrl,mujoco.mjtState.mjSTATE_CTRL)
 
     the_time = create_the_time(d)
 
+    # Clock
     clock_message = create_clock_message(the_time)
     topic_clock.publish(roslibpy.Message(clock_message))
 
+    # Odometry
     odom_message = create_odom_message(the_time, d, "car")
     topic_odom.publish(roslibpy.Message(odom_message))
 
-    bodies_names = ['car']
+    # Joint States
+    joint_states_message = create_joint_states_message(the_time, m, d, "car")
+    topic_joint_states.publish(roslibpy.Message(joint_states_message))
 
+
+    # Transforms
+    bodies_names = ['car']
     tf2_message = create_tf2_message(the_time, d, bodies_names)
     topic_tf.publish(roslibpy.Message(tf2_message))
     
